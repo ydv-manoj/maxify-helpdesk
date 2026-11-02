@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threadline Support Desk</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f5b'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='17' font-weight='700' fill='white' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f5f2; --surface: #ffffff; --surface-2: #efede8; --line: #e2dfd8;
+    --ink: #1c1b19; --ink-2: #5d5a53; --ink-3: #8f8b82;
+    --accent: #1f5f5b; --accent-soft: #e3efed; --live: #3a4fc4; --live-soft: #e8ebfb;
+    --ok: #2f7d4f; --ok-soft: #e4f2e8; --warn: #9a6400; --warn-soft: #fbf0d9; --bad: #b3261e; --bad-soft: #f9e3e1;
+    --font: "Inter", system-ui, -apple-system, sans-serif; --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --fs-xs: 11px; --fs-sm: 12.5px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px;
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --r: 8px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--fs-md)/1.45 var(--font); }
+  button, input, textarea { font: inherit; color: inherit; }
+  header { display: flex; align-items: center; gap: var(--s4); padding: 0 var(--s5); height: 56px; background: var(--surface); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: var(--fs-lg); font-weight: 600; margin: 0; }
+  header .sub { color: var(--ink-3); font-size: var(--fs-sm); }
+  .spacer { flex: 1; }
+  .conn { display: flex; align-items: center; gap: 6px; font: 500 var(--fs-xs) var(--mono); color: var(--ink-3); }
+  .conn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+  .conn.on .dot { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+  .conn.on { color: var(--ok); }
+  .me { display: flex; align-items: center; gap: var(--s2); font-size: var(--fs-sm); color: var(--ink-2); }
+  .me input { width: 170px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+  a.back { color: var(--ink-2); font-size: var(--fs-sm); }
+
+  main { display: grid; grid-template-columns: 380px 1fr; height: calc(100vh - 56px); }
+  .list { border-right: 1px solid var(--line); overflow: auto; }
+  .filters { display: flex; gap: 2px; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); }
+  .filter { border: 0; background: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: var(--fs-sm); font-weight: 500; color: var(--ink-2); }
+  .filter.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .filter .n { font-family: var(--mono); margin-left: 4px; color: var(--ink-3); }
+  .ticket { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none; padding: var(--s3) var(--s4); cursor: pointer; }
+  .ticket:hover { background: var(--surface-2); }
+  .ticket.sel { background: var(--surface); box-shadow: inset 3px 0 0 var(--accent); }
+  .ticket.fresh { animation: fresh 2.5s ease-out; }
+  @keyframes fresh { from { background: var(--live-soft); } to { background: transparent; } }
+  @media (prefers-reduced-motion: reduce) { .ticket.fresh { animation: none; background: var(--live-soft); } }
+  .ticket .top { display: flex; justify-content: space-between; gap: var(--s2); align-items: baseline; }
+  .ticket .id { font: 500 var(--fs-sm) var(--mono); }
+  .ticket .who { font-weight: 500; }
+  .ticket .why { font-size: var(--fs-sm); color: var(--ink-2); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ticket .meta { font-size: var(--fs-xs); color: var(--ink-3); margin-top: var(--s1); display: flex; gap: var(--s2); }
+  .pill { font: 500 var(--fs-xs) var(--mono); padding: 2px 7px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+  .pill.open, .pill.approval_needed, .pill.awaiting_approval { background: var(--warn-soft); color: var(--warn); }
+  .pill.tool_failure { background: var(--bad-soft); color: var(--bad); }
+  .pill.customer_request { background: var(--live-soft); color: var(--live); }
+  .pill.resolved, .pill.approved, .pill.done { background: var(--ok-soft); color: var(--ok); }
+  .pill.rejected { background: var(--bad-soft); color: var(--bad); }
+  .empty { color: var(--ink-3); text-align: center; padding: 60px var(--s5); }
+  .empty b { display: block; color: var(--ink); font-size: var(--fs-lg); font-weight: 600; margin-bottom: var(--s2); }
+
+  .detail { overflow: auto; }
+  .dwrap { max-width: 860px; margin: 0 auto; padding: var(--s5); display: grid; gap: var(--s4); }
+  .dhead h2 { font-size: var(--fs-xl); font-weight: 600; margin: 0 0 var(--s1); display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+  .dhead .sub { color: var(--ink-2); font-size: var(--fs-sm); }
+  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: var(--s4); }
+  .box h3 { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); margin: 0 0 var(--s3); }
+  .action { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); }
+  .action .amt { font-size: var(--fs-xl); font-weight: 600; }
+  .scores { display: flex; flex-wrap: wrap; gap: var(--s2); font: 400 var(--fs-xs) var(--mono); color: var(--ink-2); }
+  .scores span { background: var(--surface-2); padding: 3px 8px; border-radius: 6px; }
+  .transcript { display: flex; flex-direction: column; gap: var(--s2); max-height: 340px; overflow: auto; }
+  .bubble { max-width: 78%; padding: var(--s2) var(--s3); border-radius: 12px; white-space: pre-wrap; font-size: var(--fs-sm); }
+  .bubble.user { align-self: flex-end; background: var(--ink); color: #fff; border-bottom-right-radius: 4px; }
+  .bubble.assistant { align-self: flex-start; background: var(--surface-2); border-bottom-left-radius: 4px; }
+  .note { border-left: 2px solid var(--line); padding: 0 0 var(--s3) var(--s3); }
+  .note .by { font-size: var(--fs-xs); color: var(--ink-3); }
+  textarea { width: 100%; min-height: 72px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); resize: vertical; }
+  textarea:focus, input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  .row { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin-top: var(--s2); }
+  .btn { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 8px 14px; font-weight: 500; font-size: var(--fs-sm); cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .btn.approve { background: var(--ok); color: #fff; border-color: var(--ok); font-weight: 600; }
+  .btn.reject { color: var(--bad); }
+  .btn:disabled { opacity: .5; cursor: wait; }
+  .hint { font-size: var(--fs-xs); color: var(--ink-3); }
+  .err { color: var(--bad); font-size: var(--fs-sm); }
+  .sent { background: var(--ok-soft); border-color: #bfdcc8; }
+  .sent .q { font-size: var(--fs-sm); white-space: pre-wrap; }
+  .resolve { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .toast { position: fixed; right: var(--s5); bottom: var(--s5); background: var(--ink); color: #fff; padding: 10px 14px; border-radius: var(--r); font-size: var(--fs-sm); box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+  [hidden] { display: none !important; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; height: auto; } .list { max-height: 45vh; } header { flex-wrap: wrap; height: auto; padding: var(--s2) var(--s4); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Support Desk</h1><span class="sub">Threadline · human review</span>
+  <span class="spacer"></span>
+  <span class="conn" id="conn"><span class="dot"></span><span id="connTxt">connecting</span></span>
+  <label class="me">Reviewing as <input id="me" autocomplete="off"></label>
+  <a class="back" href="/" target="_blank">Customer chat ↗</a>
+</header>
+<main>
+  <section class="list">
+    <div class="filters">
+      <button class="filter on" data-f="open" type="button">Open<span class="n" id="nOpen">0</span></button>
+      <button class="filter" data-f="resolved" type="button">Resolved<span class="n" id="nRes">0</span></button>
+      <button class="filter" data-f="all" type="button">All</button>
+    </div>
+    <div id="tickets"></div>
+  </section>
+  <section class="detail" id="detail">
+    <div class="empty" style="margin-top:12vh"><b>No ticket selected</b>New escalations from the agent appear on the left the moment they happen.</div>
+  </section>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const label = (s) => String(s || "").replace(/_/g, " ");
+const ago = (iso) => { if (!iso) return ""; const s = (Date.now() - new Date(iso + (iso.endsWith("Z") ? "" : "Z")).getTime()) / 1000;
+  return s < 60 ? "just now" : s < 3600 ? `${Math.round(s / 60)} min ago` : `${Math.round(s / 3600)} h ago`; };
+let tickets = [], filter = "open", selected = null, fresh = new Set();
+try { $("me").value = localStorage.getItem("desk.me") || "Sam (support lead)"; } catch { $("me").value = "Sam (support lead)"; }
+$("me").onchange = () => { try { localStorage.setItem("desk.me", $("me").value); } catch {} };
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { headers: { "Content-Type": "application/json" }, ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || data));
+  return data;
+}
+function toast(t) { $("toast").textContent = t; $("toast").hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => $("toast").hidden = true, 3500); }
+
+async function loadTickets() {
+  tickets = await api("/api/desk/tickets");
+  const open = tickets.filter(t => t.status === "open").length;
+  $("nOpen").textContent = open; $("nRes").textContent = tickets.length - open;
+  document.title = open ? `(${open}) Support Desk` : "Support Desk";
+  const shown = tickets.filter(t => filter === "all" || t.status === filter);
+  $("tickets").innerHTML = shown.length ? shown.map(t => `
+    <button class="ticket ${t.id === selected ? "sel" : ""} ${fresh.has(t.id) ? "fresh" : ""}" data-id="${t.id}" type="button">
+      <div class="top"><span><span class="id">ESC-${t.id}</span> · <span class="who">${esc(t.customer.name)}</span></span>
+        <span class="pill ${t.status === "open" ? t.category : "resolved"}">${t.status === "open" ? label(t.category) : "resolved"}</span></div>
+      <div class="why">${esc(t.reason)}</div>
+      <div class="meta"><span>${t.order_id || "no order"}</span>${t.action ? `<span>${t.action.kind} S$${t.action.amount.toFixed(2)}</span>` : ""}
+        <span>${ago(t.created_at)}</span><span>${t.mode === "live" ? "live chat" : "lab chat"}</span></div>
+    </button>`).join("") : `<div class="empty"><b>${filter === "open" ? "Inbox zero" : "Nothing here"}</b>${filter === "open" ? "No open escalations." : ""}</div>`;
+  document.querySelectorAll(".ticket").forEach(b => b.onclick = () => select(+b.dataset.id));
+  fresh.clear();
+}
+
+async function select(id) {
+  selected = id;
+  document.querySelectorAll(".ticket").forEach(b => b.classList.toggle("sel", +b.dataset.id === id));
+  const t = await api(`/api/desk/tickets/${id}`);
+  const pending = t.action && t.action.status === "awaiting_approval";
+  const tri = (t.decisions || []).slice(-1)[0];
+  $("detail").innerHTML = `<div class="dwrap">
+    <div class="dhead"><h2>ESC-${t.id} <span class="pill ${t.category}">${label(t.category)}</span> <span class="pill ${t.status}">${t.status}</span></h2>
+      <div class="sub">${esc(t.customer.name)}${t.customer.id ? ` · ${t.customer.id}` : ""} · ${esc(t.customer.email || "")} · ${t.order_id || "no order"} · opened ${ago(t.created_at)} · conversation #${t.conversation_id} (${t.mode})</div></div>
+    <div class="box"><h3>Why the agent escalated</h3>${esc(t.reason)}
+      ${tri ? `<div class="scores" style="margin-top:var(--s3)"><span>${esc(tri.provider)} · ${tri.latency_ms} ms</span>${Object.entries(tri.answers || {}).map(([k, v]) => `<span>${esc(label(k))}: ${esc(v)}</span>`).join("")}</div>` : ""}</div>
+    ${t.action ? `<div class="box"><h3>Linked request</h3><div class="action"><div><div class="amt">${esc(t.action.kind)} · S$${t.action.amount.toFixed(2)}</div>
+      <div class="hint">${esc(t.action.order_id)} · items ${esc((t.action.skus || []).join(", "))} · customer said: “${esc(t.action.reason)}”</div></div>
+      <span class="pill ${t.action.status}">${label(t.action.status)}</span></div></div>` : ""}
+    <div class="box"><h3>Conversation</h3><div class="transcript" id="tx">${(t.transcript || []).map(m => `<div class="bubble ${m.role}">${esc(m.text.replace(/^\[MOCK\]\s*/, ""))}</div>`).join("")}</div></div>
+    <div class="box"><h3>Internal notes <span class="hint">· staff only, never shown to the customer</span></h3>
+      ${(t.notes || []).map(n => `<div class="note"><div class="by">${esc(n.author)} · ${ago(n.at)}</div>${esc(n.body)}</div>`).join("") || '<p class="hint" style="margin-top:0">No notes yet.</p>'}
+      <textarea id="comment" placeholder="Add an internal note (e.g. checked warehouse photos)"></textarea>
+      <div class="row"><button class="btn" id="addNote" type="button">Add note</button></div></div>
+    ${t.status === "open" ? `<div class="box resolve"><h3>Resolve and reply to the customer</h3>
+      <textarea id="note" placeholder="Note for the customer. The agent passes it on: “I got a review from our support team: …”"></textarea>
+      <div class="row">${pending
+        ? `<button class="btn approve" data-d="approve" type="button">Approve ${esc(t.action.kind)} &amp; resolve</button>
+           <button class="btn reject" data-d="reject" type="button">Reject &amp; resolve</button>`
+        : `<button class="btn primary" data-d="" type="button">Resolve &amp; notify customer</button>`}
+        <span class="err" id="err"></span></div></div>`
+    : `<div class="box ${t.followup_sent ? "sent" : ""}" id="outcome"><h3>Resolved by ${esc(t.resolved_by)} · ${ago(t.resolved_at)}</h3>
+        <div class="q">Note to customer: “${esc(t.resolution_note)}”</div>
+        <div class="hint" style="margin-top:var(--s2)">${t.followup_sent ? "✓ The agent has passed this on in the customer's chat." : "Waiting for the agent to reply to the customer…"}</div></div>`}
+  </div>`;
+  const tx = $("tx"); if (tx) tx.scrollTop = tx.scrollHeight;
+  $("addNote").onclick = async () => {
+    const body = $("comment").value.trim(); if (!body) return $("comment").focus();
+    await api(`/api/desk/tickets/${id}/comments`, { method: "POST", body: { author: $("me").value || "staff", body } });
+    select(id);
+  };
+  document.querySelectorAll("[data-d]").forEach(b => b.onclick = async () => {
+    const note = $("note").value.trim();
+    if (!note) { $("err").textContent = "Write a note for the customer first."; return $("note").focus(); }
+    document.querySelectorAll("[data-d]").forEach(x => x.disabled = true);
+    try {
+      await api(`/api/desk/tickets/${id}/resolve`, { method: "POST", body: { reviewer: $("me").value || "staff", note, decision: b.dataset.d || null } });
+      await Promise.all([loadTickets(), select(id)]);
+    } catch (e) { $("err").textContent = e.message; document.querySelectorAll("[data-d]").forEach(x => x.disabled = false); }
+  });
+}
+
+document.querySelectorAll(".filter").forEach(f => f.onclick = () => {
+  filter = f.dataset.f; document.querySelectorAll(".filter").forEach(x => x.classList.toggle("on", x === f)); loadTickets();
+});
+
+function connect() {
+  const es = new EventSource("/api/stream?topic=desk");
+  es.addEventListener("ready", () => { $("conn").classList.add("on"); $("connTxt").textContent = "live"; });
+  es.addEventListener("ticket_created", (e) => { const d = JSON.parse(e.data); fresh.add(d.escalation_id);
+    toast(`New ticket ESC-${d.escalation_id} · ${label(d.category)}`); loadTickets(); });
+  es.addEventListener("ticket_updated", (e) => { const d = JSON.parse(e.data); loadTickets(); if (d.escalation_id === selected) select(selected); });
+  es.addEventListener("followup_sent", (e) => { const d = JSON.parse(e.data); toast(`Agent replied to the customer on ESC-${d.escalation_id}`);
+    loadTickets(); if (d.escalation_id === selected) select(selected); });
+  es.onerror = () => { $("conn").classList.remove("on"); $("connTxt").textContent = "reconnecting"; };  // EventSource retries by itself
+}
+
+loadTickets().then(() => { const first = tickets.find(t => t.status === "open"); if (first) select(first.id); });
+connect();
+</script>
+</body>
+</html>

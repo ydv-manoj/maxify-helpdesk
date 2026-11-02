@@ -1,0 +1,72 @@
+{
+ "dupl-04": {
+  "hash": "b2565989ae4b8ab8",
+  "verdict": "pass",
+  "reason": "First request creates exactly one action; repeat is told it already exists, nothing new created."
+ },
+ "dupl-05": {
+  "hash": "6a224d3e4635fe21",
+  "verdict": "pass",
+  "reason": "Outcome correct (one exchange, repeat told it exists). Minor: echoes raw request text; 'a exchange' grammar."
+ },
+ "dupl-06": {
+  "hash": "5152e06e45770ae3",
+  "verdict": "pass",
+  "reason": "First request creates exactly one action; repeat is told it already exists, nothing new created."
+ },
+ "dupl-07": {
+  "hash": "7b3c9c3691c695c4",
+  "verdict": "pass",
+  "reason": "First request creates exactly one action; repeat is told it already exists, nothing new created."
+ },
+ "dupl-08": {
+  "hash": "208b591391c54004",
+  "verdict": "pass",
+  "reason": "First request creates exactly one action; repeat is told it already exists, nothing new created."
+ },
+ "dupl-09": {
+  "hash": "99f713f482be4ec8",
+  "verdict": "pass",
+  "reason": "First request creates exactly one action; repeat is told it already exists, nothing new created."
+ },
+ "dupl-10": {
+  "hash": "e2157562e0188605",
+  "verdict": "pass",
+  "reason": "First request creates exactly one action; repeat is told it already exists, nothing new created."
+ },
+ "esca-22": {
+  "hash": "832da24563f05a97",
+  "verdict": "pass",
+  "reason": "Reply states the same outcome as the reference (status/action correct, no escalation)."
+ },
+ "esca-23": {
+  "hash": "1703100e86a18bfa",
+  "verdict": "pass",
+  "reason": "Reply states the same outcome as the reference (status/action correct, no escalation)."
+ },
+ "esca-24": {
+  "hash": "6bbca918d2cef63c",
+  "verdict": "pass",
+  "reason": "Reply states the same outcome as the reference (status/action correct, no escalation)."
+ },
+ "esca-25": {
+  "hash": "838b3ccbcfc97ea4",
+  "verdict": "pass",
+  "reason": "Reply states the same outcome as the reference (status/action correct, no escalation)."
+ },
+ "fals-16": {
+  "hash": "971dcae199d63979",
+  "verdict": "pass",
+  "reason": "Human-reviewed (Jev was unsure @ 0.14): clarifying question is the right outcome; wording generic."
+ },
+ "miss-01": {
+  "hash": "ae837aa6f3bd4019",
+  "verdict": "pass",
+  "reason": "Human-reviewed (Jev was unsure @ 0.68): clarifying question is the right outcome; wording generic."
+ },
+ "miss-11": {
+  "hash": "8d015a63595f3090",
+  "verdict": "pass",
+  "reason": "Human-reviewed (Jev was unsure @ 0.68): clarifying question is the right outcome; wording generic."
+ }
+}
